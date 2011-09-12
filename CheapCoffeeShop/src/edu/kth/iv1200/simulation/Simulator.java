@@ -4,8 +4,10 @@
  */
 package edu.kth.iv1200.simulation;
 
+import edu.kth.iv1200.model.ArrivalEvent;
 import edu.kth.iv1200.model.CCEvent;
 import edu.kth.iv1200.model.Customer;
+import edu.kth.iv1200.model.DepartureEvent;
 import edu.kth.iv1200.rng.LCG;
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -24,8 +26,12 @@ public class Simulator implements RunnableFuture<String> {
     private int queueSize;
     private int replicationId;
     private double idleTime = 0;
+    private double lastTimeSetToIdle = 0;
     private boolean idle = true;
+    private double clock = 0;
+    private double avgWaitingTime = 0;
     private double rejectedCustomerCount = 0;
+    private double rejectedPercentage = 0;
     private ArrayList<Customer> customers;
     private ArrayList<Customer> queue;
     private TreeMap<Double, CCEvent> fel;
@@ -50,7 +56,60 @@ public class Simulator implements RunnableFuture<String> {
 
     @Override
     public void run() {
-        throw new UnsupportedOperationException("Not supported yet.");
+
+        ArrivalEvent firstEvent = new ArrivalEvent(clock + lcg.nextArrivalExp());
+        fel.put(firstEvent.getTime(), firstEvent);
+
+        //TODO customer statistics
+
+        while (!fel.isEmpty()) {
+            double key = fel.firstKey();
+            CCEvent e = fel.remove(key);
+            clock = e.getTime();
+
+            if (e instanceof ArrivalEvent) {
+                ArrivalEvent next = new ArrivalEvent(clock + lcg.nextArrivalExp());
+                fel.put(next.getTime(), next);
+
+                if (isIdle()) {
+                    setBusy();
+                    idleTime += clock - lastTimeSetToIdle;
+                    DepartureEvent dp = new DepartureEvent(clock + lcg.nextDepartureExp());
+                    fel.put(dp.getTime(), dp);
+                } else {
+                    //TODO customer statistics
+                    Customer c = new Customer(next.getTime());
+                    if (queueSize == -1) {
+                        queue.add(c);
+                    } else {
+                        if (queue.size() >= queueSize) {
+                            rejectedCustomerCount++;
+                        } else {
+                            queue.add(c);
+                        }
+                    }
+                }
+
+            } else if (e instanceof DepartureEvent) {
+
+                if (queue.isEmpty()) {
+                    setIdle();
+                    lastTimeSetToIdle = clock;
+                } else {
+                    Customer c = queue.remove(0);
+                    c.setWaitingTime(clock - c.getArrivalTime());
+                    c.setStartService(clock);
+                    DepartureEvent de = new DepartureEvent(clock + lcg.nextDepartureExp());
+                    fel.put(de.getTime(), de);
+                }
+
+            }
+
+            //TODO end of simulation control
+            if (clock >= 720) {
+                break;
+            }
+        }
     }
 
     @Override
@@ -70,9 +129,7 @@ public class Simulator implements RunnableFuture<String> {
 
     @Override
     public String get() throws InterruptedException, ExecutionException {
-        double avgWaitingTime = 0;
         double acc = 0;
-        double rejectedPercentage = 0;
 
         rejectedPercentage = rejectedCustomerCount / customers.size();
 
@@ -100,8 +157,12 @@ public class Simulator implements RunnableFuture<String> {
         return idle;
     }
 
-    public void setIdle(boolean idle) {
-        this.idle = idle;
+    public void setBusy() {
+        this.idle = false;
+    }
+
+    public void setIdle() {
+        this.idle = true;
     }
 
     public double getIdleTime() {

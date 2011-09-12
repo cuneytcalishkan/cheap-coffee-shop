@@ -10,6 +10,10 @@ package edu.kth.iv1200.model;
  */
 public class ArrivalEvent extends CCEvent {
 
+    public ArrivalEvent(double time) {
+        super(time);
+    }
+
     @Override
     public double getTime() {
         return super.getTime();
