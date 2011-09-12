@@ -10,6 +10,9 @@ package edu.kth.iv1200.model;
  */
 public class CCEvent {
 
+    public CCEvent(double time) {
+        this.time = time;
+    }
     private double time;
 
     public double getTime() {

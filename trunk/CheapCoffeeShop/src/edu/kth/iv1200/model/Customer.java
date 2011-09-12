@@ -10,15 +10,13 @@ package edu.kth.iv1200.model;
  */
 public class Customer {
 
-    private int id;
     private double arrivalTime;
     private double departureTime;
     private double startService;
     private double endService;
     private double waitingTime = 0;
 
-    public Customer(int id, double arrivalTime) {
-        this.id = id;
+    public Customer(double arrivalTime) {
         this.arrivalTime = arrivalTime;
     }
 
@@ -44,14 +42,6 @@ public class Customer {
 
     public void setEndService(double endService) {
         this.endService = endService;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public double getStartService() {
