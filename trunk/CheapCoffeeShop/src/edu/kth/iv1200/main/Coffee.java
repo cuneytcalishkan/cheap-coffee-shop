@@ -58,6 +58,7 @@ public class Coffee {
                 avgCustomer += s.getCustomers();
 
                 System.out.println("Replication ID: " + s.getId());
+                System.out.println("Server idle time percentage: %" + s.getIdlePercentage() * 100);
                 System.out.println("Total customers: " + s.getCustomers());
                 System.out.println("Rejected customers count: " + s.getRejectedCount());
                 System.out.println("Rejected customers percentage: %" + (s.getRejectedPercentage() * 100));
@@ -75,7 +76,7 @@ public class Coffee {
         System.out.println("Average results of " + replications + " replicas");
         System.out.println("------------------------------------------------");
         System.out.println("Average customer number: " + avgCustomer / replications);
-        System.out.println("Average rejected customers percentage: %" + (avgRejectedPercentage / replications)*100);
+        System.out.println("Average rejected customers percentage: %" + (avgRejectedPercentage / replications) * 100);
         System.out.println("Average waiting time: " + avgWaitingTime / replications);
 
         System.exit(1);

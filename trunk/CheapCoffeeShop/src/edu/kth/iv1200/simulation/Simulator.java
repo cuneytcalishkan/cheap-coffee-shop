@@ -57,9 +57,10 @@ public class Simulator implements Callable<Statistics> {
     public Statistics call() throws Exception {
         boolean stopSimulation = false;
         ArrivalEvent firstEvent = new ArrivalEvent(clock + lcg.nextArrivalExp());
+        Customer fc = new Customer(firstEvent.getTime());
+        firstEvent.setBelongsTo(fc);
+        customers.add(fc);
         fel.put(firstEvent.getTime(), firstEvent);
-
-        //TODO customer statistics
 
         while (!fel.isEmpty()) {
             double key = fel.firstKey();
@@ -73,7 +74,6 @@ public class Simulator implements Callable<Statistics> {
                 processDepartureEvent((DepartureEvent) e);
             }
 
-            //TODO end of simulation control
             if (clock >= 720) {
                 stopSimulation = true;
             }
@@ -95,6 +95,10 @@ public class Simulator implements Callable<Statistics> {
             idleTime += clock - lastTimeSetToIdle;
             DepartureEvent dp = new DepartureEvent(clock + lcg.nextDepartureExp());
             dp.setBelongsTo(e.getBelongsTo());
+            dp.getBelongsTo().setStartService(clock);
+            dp.getBelongsTo().setDepartureTime(dp.getTime());
+            dp.getBelongsTo().setEndService(dp.getTime());
+            dp.getBelongsTo().setWaitingTime(0);
             fel.put(dp.getTime(), dp);
         } else {
             if (queueSize == -1) {
@@ -110,6 +114,7 @@ public class Simulator implements Callable<Statistics> {
     }
 
     private void processDepartureEvent(DepartureEvent e) {
+        e.getBelongsTo().setDepartureTime(clock);
         if (queue.isEmpty()) {
             setIdle();
             lastTimeSetToIdle = clock;
@@ -119,6 +124,7 @@ public class Simulator implements Callable<Statistics> {
             c.setStartService(clock);
             DepartureEvent de = new DepartureEvent(clock + lcg.nextDepartureExp());
             c.setEndService(de.getTime());
+            c.setDepartureTime(de.getTime());
             de.setBelongsTo(c);
             fel.put(de.getTime(), de);
         }
@@ -133,7 +139,7 @@ public class Simulator implements Callable<Statistics> {
             acc += customer.getWaitingTime();
         }
         avgWaitingTime = acc / (customers.size() - rejectedCustomerCount);
-        return new Statistics(replicationId, customers.size(), rejectedPercentage, avgWaitingTime, rejectedCustomerCount);
+        return new Statistics(replicationId, customers.size(), rejectedPercentage, avgWaitingTime, rejectedCustomerCount, idleTime / clock);
     }
 
     public TreeMap<Double, CCEvent> getFel() {
