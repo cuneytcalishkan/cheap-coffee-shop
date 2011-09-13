@@ -23,4 +23,14 @@ public class DepartureEvent extends CCEvent {
     public void setTime(double time) {
         super.setTime(time);
     }
+
+    @Override
+    public Customer getBelongsTo() {
+        return super.getBelongsTo();
+    }
+
+    @Override
+    public void setBelongsTo(Customer belongsTo) {
+        super.setBelongsTo(belongsTo);
+    }
 }

@@ -8,6 +8,7 @@ import edu.kth.iv1200.model.ArrivalEvent;
 import edu.kth.iv1200.model.CCEvent;
 import edu.kth.iv1200.model.Customer;
 import edu.kth.iv1200.model.DepartureEvent;
+import edu.kth.iv1200.model.Statistics;
 import edu.kth.iv1200.rng.LCG;
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -20,7 +21,7 @@ import java.util.concurrent.TimeoutException;
  *
  * @author cuneyt
  */
-public class Simulator implements RunnableFuture<String> {
+public class Simulator implements RunnableFuture<Statistics> {
 
     private double seed;
     private int queueSize;
@@ -128,7 +129,7 @@ public class Simulator implements RunnableFuture<String> {
     }
 
     @Override
-    public String get() throws InterruptedException, ExecutionException {
+    public Statistics get() throws InterruptedException, ExecutionException {
         double acc = 0;
 
         rejectedPercentage = rejectedCustomerCount / customers.size();
@@ -137,11 +138,11 @@ public class Simulator implements RunnableFuture<String> {
             acc += customer.getWaitingTime();
         }
         avgWaitingTime = acc / (customers.size() - rejectedCustomerCount);
-        return replicationId + "|" + customers.size() + "|" + rejectedPercentage + "|" + avgWaitingTime;
+        return new Statistics(replicationId, customers.size(), rejectedPercentage, avgWaitingTime);
     }
 
     @Override
-    public String get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public Statistics get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
