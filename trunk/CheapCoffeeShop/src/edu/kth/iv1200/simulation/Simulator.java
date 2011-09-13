@@ -12,16 +12,14 @@ import edu.kth.iv1200.model.Statistics;
 import edu.kth.iv1200.rng.LCG;
 import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  *
  * @author cuneyt
  */
-public class Simulator implements RunnableFuture<Statistics> {
+public class Simulator implements Callable<Statistics> {
 
     private double seed;
     private int queueSize;
@@ -56,8 +54,8 @@ public class Simulator implements RunnableFuture<Statistics> {
     }
 
     @Override
-    public void run() {
-
+    public Statistics call() throws Exception {
+        boolean stopSimulation = false;
         ArrivalEvent firstEvent = new ArrivalEvent(clock + lcg.nextArrivalExp());
         fel.put(firstEvent.getTime(), firstEvent);
 
@@ -69,67 +67,64 @@ public class Simulator implements RunnableFuture<Statistics> {
             clock = e.getTime();
 
             if (e instanceof ArrivalEvent) {
-                ArrivalEvent next = new ArrivalEvent(clock + lcg.nextArrivalExp());
-                fel.put(next.getTime(), next);
-
-                if (isIdle()) {
-                    setBusy();
-                    idleTime += clock - lastTimeSetToIdle;
-                    DepartureEvent dp = new DepartureEvent(clock + lcg.nextDepartureExp());
-                    fel.put(dp.getTime(), dp);
-                } else {
-                    //TODO customer statistics
-                    Customer c = new Customer(next.getTime());
-                    if (queueSize == -1) {
-                        queue.add(c);
-                    } else {
-                        if (queue.size() >= queueSize) {
-                            rejectedCustomerCount++;
-                        } else {
-                            queue.add(c);
-                        }
-                    }
-                }
+                processArrivalEvent((ArrivalEvent) e, stopSimulation);
 
             } else if (e instanceof DepartureEvent) {
-
-                if (queue.isEmpty()) {
-                    setIdle();
-                    lastTimeSetToIdle = clock;
-                } else {
-                    Customer c = queue.remove(0);
-                    c.setWaitingTime(clock - c.getArrivalTime());
-                    c.setStartService(clock);
-                    DepartureEvent de = new DepartureEvent(clock + lcg.nextDepartureExp());
-                    fel.put(de.getTime(), de);
-                }
-
+                processDepartureEvent((DepartureEvent) e);
             }
 
             //TODO end of simulation control
             if (clock >= 720) {
-                break;
+                stopSimulation = true;
+            }
+        }
+        return getStatistics();
+    }
+
+    private void processArrivalEvent(ArrivalEvent e, boolean stop) {
+
+        if (!stop) {
+            ArrivalEvent next = new ArrivalEvent(clock + lcg.nextArrivalExp());
+            Customer c = new Customer(next.getTime());
+            next.setBelongsTo(c);
+            customers.add(c);
+            fel.put(next.getTime(), next);
+        }
+        if (isIdle()) {
+            setBusy();
+            idleTime += clock - lastTimeSetToIdle;
+            DepartureEvent dp = new DepartureEvent(clock + lcg.nextDepartureExp());
+            dp.setBelongsTo(e.getBelongsTo());
+            fel.put(dp.getTime(), dp);
+        } else {
+            if (queueSize == -1) {
+                queue.add(e.getBelongsTo());
+            } else {
+                if (queue.size() >= queueSize) {
+                    rejectedCustomerCount++;
+                } else {
+                    queue.add(e.getBelongsTo());
+                }
             }
         }
     }
 
-    @Override
-    public boolean cancel(boolean mayInterruptIfRunning) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    private void processDepartureEvent(DepartureEvent e) {
+        if (queue.isEmpty()) {
+            setIdle();
+            lastTimeSetToIdle = clock;
+        } else {
+            Customer c = queue.remove(0);
+            c.setWaitingTime(clock - c.getArrivalTime());
+            c.setStartService(clock);
+            DepartureEvent de = new DepartureEvent(clock + lcg.nextDepartureExp());
+            c.setEndService(de.getTime());
+            de.setBelongsTo(c);
+            fel.put(de.getTime(), de);
+        }
     }
 
-    @Override
-    public boolean isCancelled() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public boolean isDone() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Statistics get() throws InterruptedException, ExecutionException {
+    private Statistics getStatistics() throws InterruptedException, ExecutionException {
         double acc = 0;
 
         rejectedPercentage = rejectedCustomerCount / customers.size();
@@ -138,12 +133,7 @@ public class Simulator implements RunnableFuture<Statistics> {
             acc += customer.getWaitingTime();
         }
         avgWaitingTime = acc / (customers.size() - rejectedCustomerCount);
-        return new Statistics(replicationId, customers.size(), rejectedPercentage, avgWaitingTime);
-    }
-
-    @Override
-    public Statistics get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new Statistics(replicationId, customers.size(), rejectedPercentage, avgWaitingTime, rejectedCustomerCount);
     }
 
     public TreeMap<Double, CCEvent> getFel() {
