@@ -10,10 +10,25 @@ package edu.kth.iv1200.model;
  */
 public class CCEvent {
 
+    private double time;
+    private Customer belongsTo;
+
     public CCEvent(double time) {
         this.time = time;
     }
-    private double time;
+
+    public CCEvent(double time, Customer belongsTo) {
+        this.time = time;
+        this.belongsTo = belongsTo;
+    }
+
+    public Customer getBelongsTo() {
+        return belongsTo;
+    }
+
+    public void setBelongsTo(Customer belongsTo) {
+        this.belongsTo = belongsTo;
+    }
 
     public double getTime() {
         return time;
