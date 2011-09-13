@@ -14,12 +14,14 @@ public class Statistics {
     private double customers;
     private double rejectedPercentage;
     private double avgWaitingTime;
+    private double rejectedCount;
 
-    public Statistics(int id, double customers, double rejectedPercentage, double avgWaitingTime) {
+    public Statistics(int id, double customers, double rejectedPercentage, double avgWaitingTime, double rejectedCount) {
         this.id = id;
         this.customers = customers;
         this.rejectedPercentage = rejectedPercentage;
         this.avgWaitingTime = avgWaitingTime;
+        this.rejectedCount = rejectedCount;
     }
 
     public double getAvgWaitingTime() {
@@ -52,5 +54,13 @@ public class Statistics {
 
     public void setRejectedPercentage(double rejectedPercentage) {
         this.rejectedPercentage = rejectedPercentage;
+    }
+
+    public double getRejectedCount() {
+        return rejectedCount;
+    }
+
+    public void setRejectedCount(double rejectedCount) {
+        this.rejectedCount = rejectedCount;
     }
 }
