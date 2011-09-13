@@ -15,13 +15,15 @@ public class Statistics {
     private double rejectedPercentage;
     private double avgWaitingTime;
     private double rejectedCount;
+    private double idlePercentage;
 
-    public Statistics(int id, double customers, double rejectedPercentage, double avgWaitingTime, double rejectedCount) {
+    public Statistics(int id, double customers, double rejectedPercentage, double avgWaitingTime, double rejectedCount, double idlePercentage) {
         this.id = id;
         this.customers = customers;
         this.rejectedPercentage = rejectedPercentage;
         this.avgWaitingTime = avgWaitingTime;
         this.rejectedCount = rejectedCount;
+        this.idlePercentage = idlePercentage;
     }
 
     public double getAvgWaitingTime() {
@@ -38,6 +40,7 @@ public class Statistics {
 
     public void setCustomers(double customers) {
         this.customers = customers;
+
     }
 
     public int getId() {
@@ -62,5 +65,13 @@ public class Statistics {
 
     public void setRejectedCount(double rejectedCount) {
         this.rejectedCount = rejectedCount;
+    }
+
+    public double getIdlePercentage() {
+        return idlePercentage;
+    }
+
+    public void setIdlePercentage(double idlePercentage) {
+        this.idlePercentage = idlePercentage;
     }
 }
