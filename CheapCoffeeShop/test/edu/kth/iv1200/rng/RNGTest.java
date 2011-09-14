@@ -13,15 +13,21 @@ import org.junit.Test;
 public class RNGTest {
 
     private int N = 1000;
-    private double interArrivalRate = 0.2;
-    private double serviceRate = 0.25;
-    private LCG lcg = new LCG(System.currentTimeMillis(), serviceRate, interArrivalRate);
+    private double interArrivalRate = 5;
+    private double serviceRate = 4;
+    private LCG lcg = new LCG(34234321, serviceRate, interArrivalRate);
     private double[] generated = new double[N];
+    private double avg = 0;
 
     private void generateRandomNumbers() {
         for (int i = 0; i < N; i++) {
+            //generated[i] = lcg.nextRand();
             generated[i] = lcg.nextArrivalExp();
+            //generated[i] = lcg.nextDepartureExp();
+            System.out.println(generated[i]);
+            avg += generated[i];
         }
+        System.out.println("average time " + avg / N);
     }
 
     @Test

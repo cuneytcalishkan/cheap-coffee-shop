@@ -11,7 +11,6 @@ package edu.kth.iv1200.model;
 public class Customer {
 
     private double arrivalTime;
-    private double endService;
     private double waitingTime = 0;
 
     public Customer(double arrivalTime) {
@@ -24,14 +23,6 @@ public class Customer {
 
     public void setArrivalTime(double arrivalTime) {
         this.arrivalTime = arrivalTime;
-    }
-
-    public double getEndService() {
-        return endService;
-    }
-
-    public void setEndService(double endService) {
-        this.endService = endService;
     }
 
     public double getWaitingTime() {

@@ -98,7 +98,6 @@ public class Simulator implements Callable<Statistics> {
             idleTime += clock - lastTimeSetToIdle;
             DepartureEvent dp = new DepartureEvent(clock + lcg.nextDepartureExp());
             dp.setBelongsTo(e.getBelongsTo());
-            dp.getBelongsTo().setEndService(dp.getTime());
             dp.getBelongsTo().setWaitingTime(0);
             fel.put(dp.getTime(), dp);
         } else {
@@ -122,7 +121,6 @@ public class Simulator implements Callable<Statistics> {
             Customer c = queue.remove(0);
             c.setWaitingTime(clock - c.getArrivalTime());
             DepartureEvent de = new DepartureEvent(clock + lcg.nextDepartureExp());
-            c.setEndService(de.getTime());
             de.setBelongsTo(c);
             fel.put(de.getTime(), de);
         }
