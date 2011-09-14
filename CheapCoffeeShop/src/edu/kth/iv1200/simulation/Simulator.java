@@ -29,6 +29,8 @@ public class Simulator implements Callable<Statistics> {
     private boolean idle = true;
     private double clock = 0;
     private double avgWaitingTime = 0;
+    private double queueLength = 0;
+    private double step = 0;
     private double rejectedCustomerCount = 0;
     private double rejectedPercentage = 0;
     private ArrayList<Customer> customers;
@@ -40,8 +42,8 @@ public class Simulator implements Callable<Statistics> {
      * @param seed - seed for the random number generator
      * @param queueSize - the capacity of the queue
      * @param replicationId - id of the simulation replica
-     * @param serviceRate - number of customers being served in an hour. e.g: 15
-     * @param interArrivalRate - number of customers arriving in an hour. e.g: 12
+     * @param serviceRate - mean service time in minutes. e.g: 4
+     * @param interArrivalRate - mean inter arrival time in minutes. e.g: 5
      */
     public Simulator(double seed, int queueSize, int replicationId, double serviceRate, double interArrivalRate) {
         this.seed = seed;
@@ -66,7 +68,8 @@ public class Simulator implements Callable<Statistics> {
             double key = fel.firstKey();
             CCEvent e = fel.remove(key);
             clock = e.getTime();
-
+            step++;
+            queueLength += queue.size();
             if (e instanceof ArrivalEvent) {
                 processArrivalEvent((ArrivalEvent) e, stopSimulation);
 
@@ -95,8 +98,6 @@ public class Simulator implements Callable<Statistics> {
             idleTime += clock - lastTimeSetToIdle;
             DepartureEvent dp = new DepartureEvent(clock + lcg.nextDepartureExp());
             dp.setBelongsTo(e.getBelongsTo());
-            dp.getBelongsTo().setStartService(clock);
-            dp.getBelongsTo().setDepartureTime(dp.getTime());
             dp.getBelongsTo().setEndService(dp.getTime());
             dp.getBelongsTo().setWaitingTime(0);
             fel.put(dp.getTime(), dp);
@@ -114,17 +115,14 @@ public class Simulator implements Callable<Statistics> {
     }
 
     private void processDepartureEvent(DepartureEvent e) {
-        e.getBelongsTo().setDepartureTime(clock);
         if (queue.isEmpty()) {
             setIdle();
             lastTimeSetToIdle = clock;
         } else {
             Customer c = queue.remove(0);
             c.setWaitingTime(clock - c.getArrivalTime());
-            c.setStartService(clock);
             DepartureEvent de = new DepartureEvent(clock + lcg.nextDepartureExp());
             c.setEndService(de.getTime());
-            c.setDepartureTime(de.getTime());
             de.setBelongsTo(c);
             fel.put(de.getTime(), de);
         }
@@ -139,7 +137,7 @@ public class Simulator implements Callable<Statistics> {
             acc += customer.getWaitingTime();
         }
         avgWaitingTime = acc / (customers.size() - rejectedCustomerCount);
-        return new Statistics(replicationId, customers.size(), rejectedPercentage, avgWaitingTime, rejectedCustomerCount, idleTime / clock);
+        return new Statistics(replicationId, customers.size() - rejectedCustomerCount, rejectedPercentage, avgWaitingTime, rejectedCustomerCount, idleTime / clock, queueLength / step);
     }
 
     public TreeMap<Double, CCEvent> getFel() {

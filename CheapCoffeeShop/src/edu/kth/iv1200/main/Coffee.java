@@ -6,6 +6,7 @@ package edu.kth.iv1200.main;
 
 import edu.kth.iv1200.model.Statistics;
 import edu.kth.iv1200.simulation.Simulator;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -21,9 +22,10 @@ import java.util.logging.Logger;
 public class Coffee {
 
     private static String howToRun = "java Coffee [seed] [replications] [queue size] [service rate] [interarrival rate]\n"
-            + "Example: java Coffee 3242563 10 100 15 12\n"
+            + "Example: java Coffee 3242563 10 -1 4 5\n"
+            + "seed: -1 denotes current system time in milliseconds"
             + "queue size: -1 denotes infinite queue\n"
-            + "service rate & interarrival rate: denotes the number of customers per hour";
+            + "service rate & interarrival rate: mean service and inter arrival time in minutes";
 
     public static void main(String[] args) {
         if (args.length != 5) {
@@ -32,6 +34,9 @@ public class Coffee {
         }
         int index = 0;
         double seed = Double.parseDouble(args[index++]);
+        if (seed == -1) {
+            seed = System.currentTimeMillis();
+        }
         int replications = Integer.parseInt(args[index++]);
         int queueSize = Integer.parseInt(args[index++]);
         double serviceRate = Double.parseDouble(args[index++]);
@@ -49,20 +54,20 @@ public class Coffee {
             Future<Statistics> future = es.submit(sim);
             statistics.add(future);
         }
-
+        DecimalFormat format = new DecimalFormat(".####");
         for (Future<Statistics> future : statistics) {
             try {
                 Statistics s = future.get();
                 avgWaitingTime += s.getAvgWaitingTime();
                 avgRejectedPercentage += s.getRejectedPercentage();
                 avgCustomer += s.getCustomers();
-
                 System.out.println("Replication ID: " + s.getId());
-                System.out.println("Server idle time percentage: %" + s.getIdlePercentage() * 100);
-                System.out.println("Total customers: " + s.getCustomers());
+                System.out.println("Server utilization: %" + format.format(100 - s.getIdlePercentage() * 100));
+                System.out.println("Total customers served: " + s.getCustomers());
                 System.out.println("Rejected customers count: " + s.getRejectedCount());
-                System.out.println("Rejected customers percentage: %" + (s.getRejectedPercentage() * 100));
-                System.out.println("Average waiting time: " + s.getAvgWaitingTime());
+                System.out.println("Rejected customers percentage: %" + format.format(s.getRejectedPercentage() * 100));
+                System.out.println("Average waiting time: " + format.format(s.getAvgWaitingTime()));
+                System.out.println("Average queue length: " + format.format(s.getQueueLength()));
                 System.out.println("\n------------------------------------------------");
 
             } catch (InterruptedException ex) {
@@ -75,9 +80,9 @@ public class Coffee {
         System.out.println("\n------------------------------------------------");
         System.out.println("Average results of " + replications + " replicas");
         System.out.println("------------------------------------------------");
-        System.out.println("Average customer number: " + avgCustomer / replications);
-        System.out.println("Average rejected customers percentage: %" + (avgRejectedPercentage / replications) * 100);
-        System.out.println("Average waiting time: " + avgWaitingTime / replications);
+        System.out.println("Average served customers number: " + format.format(avgCustomer / replications));
+        System.out.println("Average rejected customers percentage: %" + format.format((avgRejectedPercentage / replications) * 100));
+        System.out.println("Average waiting time: " + format.format(avgWaitingTime / replications));
 
         System.exit(1);
     }

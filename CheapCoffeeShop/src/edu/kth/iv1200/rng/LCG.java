@@ -4,6 +4,8 @@
  */
 package edu.kth.iv1200.rng;
 
+import java.util.Random;
+
 /**
  *
  * @author Cuneyt Caliskan
@@ -36,13 +38,11 @@ public class LCG {
 
     public double nextArrivalExp() {
         double result = -interArrivalRate * Math.log(nextRand());
-        //System.out.println("Next arrival occurs " + (result * interArrivalRate) + " time units later.");
         return result;
     }
 
     public double nextDepartureExp() {
         double result = -serviceRate * Math.log(nextRand());
-        //System.out.println("Next departure event occurs " + (result * serviceRate) + " time units later.");
         return result;
     }
 }
