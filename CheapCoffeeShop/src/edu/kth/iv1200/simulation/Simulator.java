@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.kth.iv1200.simulation;
 
 import edu.kth.iv1200.model.ArrivalEvent;
@@ -17,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 
 /**
  *
- * @author cuneyt
+ * @author Cuneyt Caliskan
  */
 public class Simulator implements Callable<Statistics> {
 
@@ -39,24 +35,31 @@ public class Simulator implements Callable<Statistics> {
     private LCG lcg;
 
     /**
+     * The actual simulator thread that implements <code>Callable</code> interface and returns <code>Statistics</code> object as a result.
+     * 
      * @param seed - seed for the random number generator
      * @param queueSize - the capacity of the queue
      * @param replicationId - id of the simulation replica
-     * @param serviceRate - mean service time in minutes. e.g: 4
-     * @param interArrivalRate - mean inter arrival time in minutes. e.g: 5
+     * @param serviceMean - mean service time in minutes. e.g: 4
+     * @param interArrivalMean - mean interarrival time in minutes. e.g: 5
      */
-    public Simulator(double seed, int queueSize, int replicationId, double serviceRate, double interArrivalRate) {
+    public Simulator(double seed, int queueSize, int replicationId, double serviceMean, double interArrivalMean) {
         this.seed = seed;
         this.queueSize = queueSize;
         this.replicationId = replicationId;
         this.queue = new ArrayList<Customer>();
         this.customers = new ArrayList<Customer>();
         this.fel = new TreeMap<Double, CCEvent>();
-        this.lcg = new LCG(seed, serviceRate, interArrivalRate);
+        this.lcg = new LCG(seed, serviceMean, interArrivalMean);
     }
 
+    /**
+     * 
+     * @return
+     * @throws Exception 
+     */
     @Override
-    public Statistics call() throws Exception {
+    public Statistics call() {
         boolean stopSimulation = false;
         ArrivalEvent firstEvent = new ArrivalEvent(clock + lcg.nextArrivalExp());
         Customer fc = new Customer(firstEvent.getTime());
@@ -126,7 +129,7 @@ public class Simulator implements Callable<Statistics> {
         }
     }
 
-    private Statistics getStatistics() throws InterruptedException, ExecutionException {
+    private Statistics getStatistics() {
         double acc = 0;
 
         rejectedPercentage = rejectedCustomerCount / customers.size();

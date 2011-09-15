@@ -21,11 +21,11 @@ import java.util.logging.Logger;
  */
 public class Coffee {
 
-    private static String howToRun = "java Coffee [seed] [replications] [queue size] [service rate] [interarrival rate]\n"
+    private static String howToRun = "java Coffee [seed] [replications] [queue size] [service mean] [interarrival mean]\n"
             + "Example: java Coffee 3242563 10 -1 4 5\n"
-            + "seed: -1 denotes current system time in milliseconds"
+            + "seed: -1 denotes current system time in milliseconds\n"
             + "queue size: -1 denotes infinite queue\n"
-            + "service rate & interarrival rate: mean service and inter arrival time in minutes";
+            + "service rate & interarrival rate: mean service and interarrival time in minutes";
 
     public static void main(String[] args) {
         if (args.length != 5) {
@@ -39,8 +39,8 @@ public class Coffee {
         }
         int replications = Integer.parseInt(args[index++]);
         int queueSize = Integer.parseInt(args[index++]);
-        double serviceRate = Double.parseDouble(args[index++]);
-        double interArrivalRate = Double.parseDouble(args[index++]);
+        double serviceMean = Double.parseDouble(args[index++]);
+        double interArrivalMean = Double.parseDouble(args[index++]);
         double avgWaitingTime = 0;
         double avgRejectedPercentage = 0;
         double avgCustomer = 0;
@@ -50,7 +50,7 @@ public class Coffee {
         ExecutorService es = java.util.concurrent.Executors.newFixedThreadPool(replications);
 
         for (int i = 0; i < replications; i++) {
-            Callable<Statistics> sim = new Simulator(seed, queueSize, i + 1, serviceRate, interArrivalRate);
+            Callable<Statistics> sim = new Simulator(seed, queueSize, i + 1, serviceMean, interArrivalMean);
             Future<Statistics> future = es.submit(sim);
             statistics.add(future);
         }
