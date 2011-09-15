@@ -16,21 +16,69 @@ import java.util.concurrent.Callable;
  */
 public class Simulator implements Callable<Statistics> {
 
+    /**
+     * The seed to be used in the random number generator.
+     */
     private double seed;
+    /**
+     * The size of the queue.
+     */
     private int queueSize;
+    /**
+     * The replica id.
+     */
     private int replicationId;
+    /**
+     * The total time that the server was idle.
+     */
     private double idleTime = 0;
+    /**
+     * Last time when the server was set to idle.
+     */
     private double lastTimeSetToIdle = 0;
+    /**
+     * Server status, idle or not.
+     */
     private boolean idle = true;
+    /**
+     * The simulation clock.
+     */
     private double clock = 0;
+    /**
+     * Average waiting time of the customers on the queue.
+     */
     private double avgWaitingTime = 0;
+    /**
+     * The length of the queue.
+     */
     private double queueLength = 0;
+    /**
+     * Indicates how many times the queue size changed.
+     */
     private double step = 0;
+    /**
+     * The number of rejected customers due to queue overcapacity.
+     */
     private double rejectedCustomerCount = 0;
+    /**
+     * Percentage of the customers rejected.
+     */
     private double rejectedPercentage = 0;
+    /**
+     * All customers arriving at the shop.
+     */
     private ArrayList<Customer> customers;
+    /**
+     * The queue consisting of the customers waiting for service.
+     */
     private ArrayList<Customer> queue;
+    /**
+     * The future event list.
+     */
     private TreeMap<Double, CCEvent> fel;
+    /**
+     * The random number generator.
+     */
     private LCG lcg;
 
     /**
@@ -87,6 +135,9 @@ public class Simulator implements Callable<Statistics> {
 
     /**
      * If stop!=true, a new arrival event is generated and put into the future event list.
+     * If the server is idle, the arrival event is processed and a departure event is scheduled.
+     * If the server is busy, the customer is placed on the queue or rejected depending on the
+     * queue size.
      * @param e The event to be handled.
      * @param stop Stop creating new arrival events or not.
      */
@@ -119,6 +170,12 @@ public class Simulator implements Callable<Statistics> {
         }
     }
 
+    /**
+     * If the queue is empty, the server is set to idle and server idle time statistics are collected.
+     * If the queue is not empty, the first customer is removed from the queue and a departure event
+     * is scheduled.
+     * @param e The event to be handled.
+     */
     private void processDepartureEvent(DepartureEvent e) {
         if (queue.isEmpty()) {
             setIdle();
@@ -132,6 +189,10 @@ public class Simulator implements Callable<Statistics> {
         }
     }
 
+    /**
+     * 
+     * @return The calculated statistics values of the simulation.
+     */
     private Statistics getStatistics() {
         double acc = 0;
 

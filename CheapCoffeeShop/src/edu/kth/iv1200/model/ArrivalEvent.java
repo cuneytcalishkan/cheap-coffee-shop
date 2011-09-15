@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.kth.iv1200.model;
 
 /**
@@ -10,6 +6,10 @@ package edu.kth.iv1200.model;
  */
 public class ArrivalEvent extends CCEvent {
 
+    /**
+     * Arrival event which indicates that the customer arrives to store.
+     * @param time Time of arrival.
+     */
     public ArrivalEvent(double time) {
         super(time);
     }
