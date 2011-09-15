@@ -9,7 +9,6 @@ import edu.kth.iv1200.rng.LCG;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -54,9 +53,8 @@ public class Simulator implements Callable<Statistics> {
     }
 
     /**
-     * 
-     * @return
-     * @throws Exception 
+     * Executes the simple DES algorithm.
+     * @return The statistics collected about the simulation.
      */
     @Override
     public Statistics call() {
@@ -87,6 +85,11 @@ public class Simulator implements Callable<Statistics> {
         return getStatistics();
     }
 
+    /**
+     * If stop!=true, a new arrival event is generated and put into the future event list.
+     * @param e The event to be handled.
+     * @param stop Stop creating new arrival events or not.
+     */
     private void processArrivalEvent(ArrivalEvent e, boolean stop) {
 
         if (!stop) {
