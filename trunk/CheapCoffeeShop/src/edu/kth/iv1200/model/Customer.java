@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.kth.iv1200.model;
 
 /**
@@ -10,9 +6,19 @@ package edu.kth.iv1200.model;
  */
 public class Customer {
 
+    /**
+     * Arrival time of the customer.
+     */
     private double arrivalTime;
+    /**
+     * Waiting time of the customer in the queue.
+     */
     private double waitingTime = 0;
 
+    /**
+     * Customer.
+     * @param arrivalTime Time of arrival.
+     */
     public Customer(double arrivalTime) {
         this.arrivalTime = arrivalTime;
     }

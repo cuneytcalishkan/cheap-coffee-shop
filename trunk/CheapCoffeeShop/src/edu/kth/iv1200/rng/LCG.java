@@ -5,11 +5,29 @@ package edu.kth.iv1200.rng;
  */
 public class LCG {
 
+    /**
+     * The initial seed and the value calculated for each new random value.
+     */
     private double Xi;
+    /**
+     * The mean service time in minutes.
+     */
     private double serviceMean;
+    /**
+     * The mean interarrival time in minutes.
+     */
     private double interArrivalMean;
+    /**
+     * LCG parameter.
+     */
     public static double m = Math.pow(2, 31) - 1;
+    /**
+     * LCG parameter.
+     */
     public static double a = 314159269;
+    /**
+     * LCG parameter.
+     */
     public static double c = 453806245;
 
     /**

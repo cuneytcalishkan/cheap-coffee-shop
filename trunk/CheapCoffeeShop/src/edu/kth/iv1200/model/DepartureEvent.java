@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.kth.iv1200.model;
 
 /**
@@ -10,6 +6,10 @@ package edu.kth.iv1200.model;
  */
 public class DepartureEvent extends CCEvent {
 
+    /**
+     * Departure event which indicates that the customer leaves the store.
+     * @param time The time of departure.
+     */
     public DepartureEvent(double time) {
         super(time);
     }

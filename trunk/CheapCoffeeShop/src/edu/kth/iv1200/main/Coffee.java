@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.kth.iv1200.main;
 
 import edu.kth.iv1200.model.Statistics;
@@ -21,6 +17,9 @@ import java.util.logging.Logger;
  */
 public class Coffee {
 
+    /**
+     * Instructions on how to run the program from the command line.
+     */
     private static String howToRun = "java Coffee [seed] [replications] [queue size] [service mean] [interarrival mean]\n"
             + "Example: java Coffee 3242563 10 -1 4 5\n"
             + "seed: -1 denotes current system time in milliseconds\n"
@@ -41,11 +40,22 @@ public class Coffee {
         int queueSize = Integer.parseInt(args[index++]);
         double serviceMean = Double.parseDouble(args[index++]);
         double interArrivalMean = Double.parseDouble(args[index++]);
+        /**
+         * Average waiting time statistics.
+         */
         double avgWaitingTime = 0;
+        /**
+         * Average percentage of the rejected customers.
+         */
         double avgRejectedPercentage = 0;
+        /**
+         * Average number of customers per simulation.
+         */
         double avgCustomer = 0;
 
-
+        /**
+         * A list of the results to be obtained after execution.
+         */
         ArrayList<Future<Statistics>> statistics = new ArrayList<Future<Statistics>>();
         ExecutorService es = java.util.concurrent.Executors.newFixedThreadPool(replications);
 
@@ -83,7 +93,6 @@ public class Coffee {
         System.out.println("Average served customers number: " + format.format(avgCustomer / replications));
         System.out.println("Average rejected customers percentage: %" + format.format((avgRejectedPercentage / replications) * 100));
         System.out.println("Average waiting time: " + format.format(avgWaitingTime / replications));
-
         System.exit(1);
     }
 }

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package edu.kth.iv1200.rng;
 
 import org.junit.Test;
@@ -30,6 +26,9 @@ public class RNGTest {
         System.out.println("average time " + avg / N);
     }
 
+    /**
+     * The Chi Square test to test whether the random number generator is uniform or not.
+     */
     @Test
     public void chiSquareTest() {
         int k = 40;
