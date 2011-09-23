@@ -46,7 +46,7 @@ public class LCG {
      * Generates a uniform random number on the interval[0,1) using Linear Congruential Generation method.
      * @return Uniformly distributed random number on the interval [0,1).
      */
-    public double nextRand() {
+    public synchronized double nextRand() {
         Xi = (a * Xi + c) % m;
         return Xi / m;
     }
@@ -56,7 +56,7 @@ public class LCG {
      * 
      * @return The next arrival time.
      */
-    public double nextArrivalExp() {
+    public synchronized double nextArrivalExp() {
         double result = -interArrivalMean * Math.log(nextRand());
         return result;
     }
@@ -65,7 +65,7 @@ public class LCG {
      * Generates the next departure event time which is exponentially distributed
      * @return The next departure time.
      */
-    public double nextDepartureExp() {
+    public synchronized double nextDepartureExp() {
         double result = -serviceMean * Math.log(nextRand());
         return result;
     }
