@@ -1,6 +1,7 @@
 package edu.kth.iv1200.main;
 
 import edu.kth.iv1200.model.Statistics;
+import edu.kth.iv1200.rng.LCG;
 import edu.kth.iv1200.simulation.Simulator;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -58,9 +59,9 @@ public class Coffee {
          */
         ArrayList<Future<Statistics>> statistics = new ArrayList<Future<Statistics>>();
         ExecutorService es = java.util.concurrent.Executors.newFixedThreadPool(replications);
-
+        LCG lcg = new LCG(seed, serviceMean, interArrivalMean);
         for (int i = 0; i < replications; i++) {
-            Callable<Statistics> sim = new Simulator(seed, queueSize, i + 1, serviceMean, interArrivalMean);
+            Callable<Statistics> sim = new Simulator(lcg, queueSize, i + 1);
             Future<Statistics> future = es.submit(sim);
             statistics.add(future);
         }

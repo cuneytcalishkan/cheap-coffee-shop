@@ -17,10 +17,6 @@ import java.util.concurrent.Callable;
 public class Simulator implements Callable<Statistics> {
 
     /**
-     * The seed to be used in the random number generator.
-     */
-    private double seed;
-    /**
      * The size of the queue.
      */
     private int queueSize;
@@ -84,20 +80,17 @@ public class Simulator implements Callable<Statistics> {
     /**
      * The actual simulator thread that implements <code>Callable</code> interface and returns <code>Statistics</code> object as a result.
      * 
-     * @param seed - seed for the random number generator
+     * @param lcg - Linear Congruential Generator random number generator
      * @param queueSize - the capacity of the queue
      * @param replicationId - id of the simulation replica
-     * @param serviceMean - mean service time in minutes. e.g: 4
-     * @param interArrivalMean - mean interarrival time in minutes. e.g: 5
      */
-    public Simulator(double seed, int queueSize, int replicationId, double serviceMean, double interArrivalMean) {
-        this.seed = seed;
+    public Simulator(LCG lcg, int queueSize, int replicationId) {
+        this.lcg = lcg;
         this.queueSize = queueSize;
         this.replicationId = replicationId;
         this.queue = new ArrayList<Customer>();
         this.customers = new ArrayList<Customer>();
         this.fel = new TreeMap<Double, CCEvent>();
-        this.lcg = new LCG(seed, serviceMean, interArrivalMean);
     }
 
     /**
@@ -255,14 +248,6 @@ public class Simulator implements Callable<Statistics> {
 
     public void setReplicationId(int replicationId) {
         this.replicationId = replicationId;
-    }
-
-    public double getSeed() {
-        return seed;
-    }
-
-    public void setSeed(double seed) {
-        this.seed = seed;
     }
 
     public LCG getLcg() {
